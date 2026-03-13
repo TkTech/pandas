@@ -139,24 +139,38 @@ jobs:
         name: docs
         path: _docs
 
+    - name: Check if gh-pages branch exists
+      id: check_gh_pages
+      run: |
+        if git ls-remote --exit-code --heads origin gh-pages > /dev/null 2>&1; then
+          echo "exists=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "exists=false" >> "$GITHUB_OUTPUT"
+        fi
+
     - name: Checkout gh-pages branch
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       with:
         ref: gh-pages
         path: _site
-      continue-on-error: true
+      if: steps.check_gh_pages.outputs.exists == 'true'
 
-    - name: Initialize gh-pages branch
+    - name: Checkout and initialize gh-pages branch
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      with:
+        path: _site
+        fetch-depth: 1
+      if: steps.check_gh_pages.outputs.exists != 'true'
+
+    - name: Create orphan gh-pages branch
       run: |
-        if [ ! -d _site/.git ]; then
-          mkdir -p _site
-          git init -b gh-pages _site
-          git -C _site -c user.name="github-actions[bot]" \
-              -c user.email="github-actions[bot]@users.noreply.github.com" \
-              commit --allow-empty -m "Initialize gh-pages"
-          git -C _site remote add origin \
-            "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
-        fi
+        cd _site
+        git checkout --orphan gh-pages
+        git rm -rf .
+        git -c user.name="github-actions[bot]" \
+            -c user.email="github-actions[bot]@users.noreply.github.com" \
+            commit --allow-empty -m "Initialize gh-pages"
+      if: steps.check_gh_pages.outputs.exists != 'true'
 
     - name: Assemble site
       run: |
