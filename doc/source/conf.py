@@ -252,7 +252,7 @@ html_theme_options = {
     "navbar_align": "left",
     "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
     "switcher": {
-        "json_url": "https://pandas.pydata.org/versions.json",
+        "json_url": "/versions.json",
         "version_match": switcher_version,
     },
     # This shows a warning for patch releases since the
