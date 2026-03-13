@@ -162,7 +162,7 @@ jobs:
       run: |
 
         # Update website root, preserving accumulated docs directories
-        rsync -a --delete --exclude='docs' --exclude='pandas-docs' _website/ _site/
+        rsync -a --delete --exclude='.git' --exclude='docs' --exclude='pandas-docs' _website/ _site/
 
         # Update dev docs on pushes to main
         if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
